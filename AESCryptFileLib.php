@@ -544,7 +544,7 @@ class AESCryptFileLib
 	private function createKeyUsingIVAndPassphrase($iv, $passphrase) 
 	{
 		//Start with the IV padded to 32 bytes
-		$aes_key = str_pad($iv, 32, hex2bin("00"));
+		$aes_key = str_pad($iv, 32, self::hex2bin("00"));
 		$iterations = 8192;
 		for($i=0; $i<$iterations; $i++)
 		{
@@ -615,6 +615,21 @@ class AESCryptFileLib
 		}
 	}
 	
+        // hex2bin wasn't introduced until PHP 5.4.0. If not present, use an alternative
+        // written by chaos79: http://php.net/manual/fr/function.bin2hex.php#86123
+        public static function hex2bin($string) {
+                if (function_exists('hex2bin')) {
+                        return hex2bin($string);
+                } else {
+                        $sbin = "";
+                        $len = strlen( $string );
+                        for ( $i = 0; $i < $len; $i += 2 ) {
+                                $sbin .= chr( hexdec( $string{$i}.$string{( $i+1 )} ) );
+                        }
+                        return $sbin;
+                }
+        }
+        
 }
 
 class AESCryptMissingDependencyException extends Exception {} //E.g. missing mcrypt
